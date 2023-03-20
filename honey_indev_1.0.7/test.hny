@@ -1,0 +1,9 @@
+format linux.aarch64.executable;
+
+use Console;
+
+fn main(argv: StringSequence) -> Integer
+{
+    Console.log("Hello, World!");
+    return 0;
+}
