@@ -18,10 +18,12 @@ sany: sformat
 sformat: "format" tname ";";
 suse: "using" tname ";";
 sfn: "fn" tname "(" sargs? ")" "->" tname sbody;
+sasmfn: "fn" tname "(" sargs? ")" "->" tname tasm;
+slambda: "{" scallargs? "=>" tname ":" sexpr "}"
 sargs: sarg ("," sarg)*;
 sarg: tname ":" tname;
 sbody: "{" sline* "}";
-sline: (scall | sequal | sdefine | sreturn | tcomment) ";";
+sline: (scall | sequal | sdefine | sreturn | tcomment | tasm) ";";
 scall: tname "(" scallargs? ")";
 scallargs: sexpr ("," sexpr)*;
 sequal: tname "=" sexpr ";";
@@ -29,7 +31,7 @@ sdefine: sarg ("=" sexpr)* ";";
 sreturn: "return" sexpr?;
 sexpr:
      "(" sexpr ")"
-    |(ssequence | tname) "[" tinteger "]"
+    |sexr "[" sexpr "]"
     |sexpr "*" "*" sexpr
     |"-" sexpr
     |sexpr "*" sexpr
@@ -73,7 +75,7 @@ class Node:
     data = {}
     nods = ()
 
-    def __init__(self, typ, data, nods):
+    def __init__(self, typ, data, nods=[].copy()):
         self.typ = str(typ)
         self.data = {}
         self.data.update(data)
@@ -115,6 +117,11 @@ actions = {
     "sfn": lambda _, n: Node("func",
         {"lrnode": _, "pkg": "", "clas": "", "name": n[1],
         "sargs": n[3], "rtype": n[6]}, list(n[7]).copy()),
+    "sasmfn": lambda _, n: Node("func",
+        {"lrnode": _, "pkg": "", "clas": "", "name": n[1],
+        "sargs": n[3], "rtype": n[6]}, list(n[7]).copy()),
+    "slambda": lambda _, n: Node("lambda",
+        {"lrnode": _, "sargs": n[1], "rtype": n[3]}, n[5]),
     "sargs": parse_sargs,
     "sarg": lambda _, n: Node("vardef",
         {"lrnode": _, "name": n[0], "dtype": n[2]}),
@@ -127,5 +134,39 @@ actions = {
         {"lrnode": _, "target": n[0], "value": n[2]}),
     "sdefine": parse_define,
     "sreturn": lambda _, n: Node("return",
-        {"lrnode": _, "rvalue": n[1]})
+        {"lrnode": _, "rvalue": n[1]}),
+    "sexpr": (
+        lambda _, n: n[1],
+        lambda _, n: Node("index",
+            {"lrnode": _, "seq": n[0], "ind": n[2]}, [])
+        lambda _, n: Node("power",
+            {"lrnode": _, "a": n[0], "b": n[3]}),
+        lambda _, n: Node("negative",
+            {"lrnode": _, "a": n[1]})
+        lambda _, n: Node("multiply",
+            {"lrnode": _, "a": n[0], "b": n[2]})
+        lambda _, n: Node("divide",
+            {"lrnode": _, "a": n[0], "b": n[2]})
+        lambda _, n: Node("add",
+            {"lrnode": _, "a": n[0], "b": n[2]})
+        lambda _, n: Node("substract",
+            {"lrnode": _, "a": n[0], "b": n[2]}),
+        lambda _, n: Node("not",
+            {"lrnode": _, "a": n[1]}),
+        lambda _, n: Node("and",
+            {"lrnode": _, "a": n[0], "b": n[2]}),
+        lambda _, n: Node("or",
+            {"lrnode": _, "a": n[0], "b": n[2]}),
+        lambda _, n: Node("or",
+            {"lrnode": _, "a": n[0], "b": n[2]}),
+        lambda _, n: Node("primitive",
+            {"lrnode": _, "dtype": "Integer", "value": n[0]}),
+        lambda _, n: Node("primitive",
+            {"lrnode": _, "dtype": "String", "value": n[0]}),
+        lambda _, n: Node("primitive",
+            {"lrnode": _, "dtype": "Name", "value": n[0]}),
+        lambda _, n: n[0]
+    ),
+    "ssequence": lambda _, n: Node("primitive",
+            {"lrnode": _, "dtype": "Sequence", "value": n[1]})
 }
