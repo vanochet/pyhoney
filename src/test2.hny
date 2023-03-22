@@ -1,0 +1,9 @@
+format binary.mbr.executable;
+
+use Console;
+
+fn main(argv: StringSequence) -> Void
+{
+    Console.log("Hello, World!");
+    return 0;
+}
