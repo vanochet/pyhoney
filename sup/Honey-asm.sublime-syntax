@@ -1,0 +1,40 @@
+%YAML 1.2
+---
+# See http://www.sublimetext.com/docs/syntax.html
+file_extensions:
+  - hna
+scope: source.honey.assembler
+contexts:
+  main:
+    - match: '"'
+      scope: punctuation.definition.string.begin.honey.assembler
+      push: double_quoted_string
+
+    - match: '//'
+      scope: punctuation.definition.comment.honey.assembler
+      push: line_comment
+
+    - match: '\!(ARGS|FORMAT|ARCH|BITS|TYPE|ORG|STACK|USING|CODE|CONST|PROC|FUNC|SEQ|LOD|SVF|SVD|CAL|CLS|RET|DATA|FASM|END)\b'
+      scope: keyword.control.honey.assembler
+
+    - match: '\b[+-]?([0-9]+|0[Xx][0-9A-Fa-f]+|[0-9A-Fa-f]+[Hh]|0[Bb][01]+|0[Oo][0-7]+|[0-7]+[Oo])\b'
+      scope: constant.numeric.honey.assembler
+
+    - match: '\b(mbr|elf|exe|dll|efi|uefi|bin|custom-[A-Ba-b]\w*|macho|sys)\b'
+      scope: constant.language.format.honey.assembler
+
+    - match: '\b(x86|arm|aarch|sparc|superpc|custom-[A-Ba-b]\w*)\b'
+      scope: constant.language.arch.honey.assembler
+
+  double_quoted_string:
+    - meta_scope: string.quoted.double.honey.assembler
+    - match: '""'
+      scope: constant.character.escape.honey.assembler
+    - match: '"'
+      scope: punctuation.definition.string.end.honey.assembler
+      pop: true
+
+  line_comment:
+    - meta_scope: comment.line.honey.assembler
+    - match: $
+      pop: true

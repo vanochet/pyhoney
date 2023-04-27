@@ -1,0 +1,22 @@
+!FORMAT mbr
+!ARCH x86
+!BITS 16
+!ORG 0x7C00
+!STACK 1024
+
+!PACKAGE main
+
+!USING
+    Console
+!END
+
+!PROC main(argv: str!SEQ)
+    !LOD CONST!str!0
+    !SVF Console.log
+    !SVD ARG!Console.log!0
+    !CAL Console.log
+    !CLS STACK
+    !RET
+!END
+
+!CONST(str) <"Hello, World!", 0x0D, 0x0A>

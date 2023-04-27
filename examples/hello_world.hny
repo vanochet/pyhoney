@@ -1,0 +1,10 @@
+format exe.x86.bits32
+package main
+
+using Console
+
+fn main(argv: Sequence)
+{
+    Console.log("Hello, World!");
+    return 0;
+}
